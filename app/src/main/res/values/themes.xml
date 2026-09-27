@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.EverScreen" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/teal_200</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColorPrimary">#1A1A1A</item>
+    </style>
+</resources>

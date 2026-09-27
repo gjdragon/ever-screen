@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="28dp">
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="28dp" />
+
+        <!-- ===== Setup section: hidden entirely while running ===== -->
+        <LinearLayout
+            android:id="@+id/setupGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Segmented mode control -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <Button
+                    android:id="@+id/durationModeButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Duration"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:minWidth="0dp"
+                    android:background="@drawable/bg_segment_selected"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/untilModeButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Until time"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:minWidth="0dp"
+                    android:background="@drawable/bg_segment_unselected"
+                    android:textColor="@color/purple_500" />
+
+            </LinearLayout>
+
+            <!-- Duration panel -->
+            <LinearLayout
+                android:id="@+id/durationPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/durationLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A"
+                    android:text="30 min" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp">
+
+                    <Button
+                        android:id="@+id/preset15Button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAllCaps="false"
+                        android:text="15m" />
+
+                    <Button
+                        android:id="@+id/preset30Button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAllCaps="false"
+                        android:text="30m" />
+
+                    <Button
+                        android:id="@+id/preset60Button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAllCaps="false"
+                        android:text="1h" />
+
+                    <Button
+                        android:id="@+id/preset120Button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAllCaps="false"
+                        android:text="2h" />
+
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/durationSeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="179"
+                    android:progress="29"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+            <!-- Until panel -->
+            <LinearLayout
+                android:id="@+id/untilPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_card"
+                android:padding="20dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/untilTimeLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A"
+                    android:text="22:30" />
+
+                <TextView
+                    android:id="@+id/untilDurationLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="4dp"
+                    android:text="in 1h 30m" />
+
+                <Button
+                    android:id="@+id/pickTimeButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAllCaps="false"
+                    android:text="Choose time"
+                    android:layout_marginTop="14dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- ===== Status: always visible, this is the countdown/end-time display ===== -->
+        <LinearLayout
+            android:id="@+id/statusCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_card"
+            android:padding="24dp"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:gravity="center"
+                android:text="Set a duration and tap Start" />
+
+            <TextView
+                android:id="@+id/endTimeText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center"
+                android:layout_marginTop="6dp"
+                android:text="" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/startStopButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:paddingVertical="14dp"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:id="@+id/infoText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="#888888"
+            android:gravity="center"
+            android:text="Runs as a foreground service with a wake lock, so it keeps working even if you switch to another app. Android requires the notification shown below while it's active — tap Stop on it to end early."
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>
