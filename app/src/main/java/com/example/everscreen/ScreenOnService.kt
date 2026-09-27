@@ -7,10 +7,15 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.graphics.PixelFormat
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.os.PowerManager
+import android.provider.Settings
+import android.view.Gravity
+import android.view.View
+import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,6 +52,7 @@ class ScreenOnService : Service() {
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var countDownTimer: CountDownTimer? = null
+    private var overlayView: View? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -68,21 +74,19 @@ class ScreenOnService : Service() {
                     startForeground(NOTIFICATION_ID, buildNotification(minutes * 60_000L))
                 }
                 acquireWakeLock(minutes * 60_000L)
+                addOverlayView()
                 startCountdown(minutes * 60_000L)
             }
         }
         return START_NOT_STICKY
     }
 
-    @Suppress("DEPRECATION")
     private fun acquireWakeLock(durationMillis: Long) {
         releaseWakeLock()
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-        // SCREEN_BRIGHT_WAKE_LOCK and ACQUIRE_CAUSES_WAKEUP keep the screen on and bright.
-        // ON_AFTER_RELEASE lets the screen return to normal timeout behavior
-        // as soon as we release the lock, instead of turning off instantly.
+        // PARTIAL_WAKE_LOCK keeps CPU active so the service countdown stays running.
         wakeLock = powerManager.newWakeLock(
-            PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
+            PowerManager.PARTIAL_WAKE_LOCK,
             "EverScreen::WakeLock"
         ).apply {
             setReferenceCounted(false)
@@ -93,6 +97,51 @@ class ScreenOnService : Service() {
     private fun releaseWakeLock() {
         wakeLock?.let { if (it.isHeld) it.release() }
         wakeLock = null
+    }
+
+    private fun addOverlayView() {
+        if (overlayView != null) return
+        if (!Settings.canDrawOverlays(this)) return
+
+        val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        val layoutParams = WindowManager.LayoutParams(
+            1, 1,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_PHONE
+            },
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSPARENT
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = 0
+            y = 0
+        }
+
+        val view = View(this)
+        try {
+            windowManager.addView(view, layoutParams)
+            overlayView = view
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun removeOverlayView() {
+        overlayView?.let { view ->
+            val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+            try {
+                windowManager.removeView(view)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        overlayView = null
     }
 
     private fun startCountdown(durationMillis: Long) {
@@ -115,6 +164,7 @@ class ScreenOnService : Service() {
     private fun stopSelfCleanly() {
         countDownTimer?.cancel()
         countDownTimer = null
+        removeOverlayView()
         releaseWakeLock()
         _state.value = State(isRunning = false, remainingMillis = 0L, endTimeMillis = 0L)
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -124,6 +174,7 @@ class ScreenOnService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         countDownTimer?.cancel()
+        removeOverlayView()
         releaseWakeLock()
         _state.value = State()
     }

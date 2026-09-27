@@ -4,12 +4,16 @@ import android.Manifest
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.View
 import android.view.WindowManager
 import android.widget.SeekBar
+import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -40,6 +44,19 @@ class MainActivity : AppCompatActivity() {
             startScreenOnService()
         }
 
+    private val overlayPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            if (Settings.canDrawOverlays(this)) {
+                requestNotificationPermissionThenStart()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Permission to display over other apps is required to keep screen awake in background",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -60,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             if (ScreenOnService.state.value.isRunning) {
                 stopScreenOnService()
             } else {
-                requestNotificationPermissionThenStart()
+                checkOverlayPermissionThenStart()
             }
         }
 
@@ -187,6 +204,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ---------- Start / stop ----------
+
+    private fun checkOverlayPermissionThenStart() {
+        if (!Settings.canDrawOverlays(this)) {
+            Toast.makeText(
+                this,
+                "Please allow 'Display over other apps' to keep screen awake in background",
+                Toast.LENGTH_LONG
+            ).show()
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                "package:$packageName".toUri()
+            )
+            overlayPermissionLauncher.launch(intent)
+        } else {
+            requestNotificationPermissionThenStart()
+        }
+    }
 
     private fun requestNotificationPermissionThenStart() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&

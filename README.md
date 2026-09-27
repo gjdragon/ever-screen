@@ -26,12 +26,12 @@ works on battery, on demand, for exactly as long as you tell it to.
 
 Android normally lets an *Activity* keep the screen on only while that
 specific screen is visible (`FLAG_KEEP_SCREEN_ON`). EverScreen instead starts
-a foreground `Service` that acquires a `PowerManager` wake lock
-(`SCREEN_BRIGHT_WAKE_LOCK`), which is the correct mechanism for holding the
-screen on independent of which app is currently in the foreground. Android
-requires a visible notification for any running foreground service — that's
-the notification you'll see while EverScreen is active, with a countdown and
-a Stop button.
+a foreground `Service` that acquires a `PowerManager` CPU wake lock (`PARTIAL_WAKE_LOCK`)
+and displays an invisible, transparent overlay window (`TYPE_APPLICATION_OVERLAY`)
+with `FLAG_KEEP_SCREEN_ON`. This keeps the display awake across all apps and the home
+screen on modern Android versions. Android requires a visible notification for any
+running foreground service — that's the notification you'll see while EverScreen is active,
+with a countdown and a Stop button.
 
 ## Requirements
 
@@ -55,7 +55,8 @@ action.
 
 | Permission | Why |
 |---|---|
-| `WAKE_LOCK` | Holds the screen on while the service is active |
+| `WAKE_LOCK` | Holds a partial wake lock to keep CPU active for countdown timer |
+| `SYSTEM_ALERT_WINDOW` | Displays a transparent overlay window with `FLAG_KEEP_SCREEN_ON` to keep screen awake across all apps |
 | `FOREGROUND_SERVICE` | Runs the keep-awake service in the background |
 | `FOREGROUND_SERVICE_SPECIAL_USE` | Required by Android 14+ to declare the foreground service's purpose |
 | `POST_NOTIFICATIONS` | Shows the required foreground-service status notification (Android 13+) |
